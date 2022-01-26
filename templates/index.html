@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta property="og:title" content="오리 사랑 모임"/>
+    <meta property="og:description" content="귀여운 오리에게 한마디 남겨주세요!"/>
+    <meta property="og:image"
+          content="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOL7fp30_vkzMyWm2-VoDegLAQtJPp41arcA&usqp=CAUL"/>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"
+    ></script>
+
+    <title>오리 사랑 모임</title>
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap"
+            rel="stylesheet"
+    />
+    <style>
+        * {
+            font-family: "Noto Serif KR", serif;
+            border: 0;
+            margin: 0;
+        }
+
+        *::-webkit-scrollbar {
+            width: 10px;
+            height: 5px;
+            border-radius: 50px;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: #1fddff;
+            border-radius: 50px;
+        }
+
+        body {
+            background-color: #ecf0f1;
+        }
+
+        .cover {
+            width: 100%;
+            height: 300px;
+            background-image: linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.5),
+                    rgba(0, 0, 0, 0.5)
+            ),
+            url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOL7fp30_vkzMyWm2-VoDegLAQtJPp41arcA&usqp=CAU");
+            background-position: bottom;
+            background-size: cover;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .weather {
+            height: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .weather > p {
+            margin: 0;
+        }
+
+        #commit {
+            width: 95%;
+            max-width: 500px;
+            margin: 20px auto 20px auto;
+            box-shadow: 0px 0px 3px 0px black;
+            padding: 20px;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+
+        .cards {
+            width: 95%;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .cards > .card {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .blockquote {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .blockquote > svg {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .rightBox > span {
+            font-size: 15px;
+        }
+
+        .card:hover {
+            background-color: #f9ca24;
+            color: black;
+        }
+
+        .toggleBG {
+            background: #53FF4C;
+            width: 70px;
+            height: 30px;
+            border: 1px solid #CCCCCC;
+            border-radius: 15px;
+        }
+
+        .toggleFG {
+            background: #FFFFFF;
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 15px;
+            position: relative;
+            left: 0px;
+            margin: 0;
+        }
+
+
+    </style>
+</head>
+<script>
+    $(document).ready(function () {
+        show_comment();
+    });
+
+    $(document).on('click', '.toggleBG', function () {
+        let toggleBG = $(this);
+        let toggleFG = $(this).find('.toggleFG');
+        let left = toggleFG.css('left');
+        let commit = $('#commit');
+        console.log(commit)
+        if (left == '40px') {
+            commit.css('display', 'block');
+            toggleBG.css('background', '#53FF4C');
+            toggleActionStart(toggleFG, 'TO_LEFT');
+        } else if (left == '0px') {
+            commit.css('display', 'none');
+            toggleBG.css('background', '#CCCCCC');
+            toggleActionStart(toggleFG, 'TO_RIGHT');
+        }
+    });
+
+    // 토글 버튼 이동 모션 함수
+    function toggleActionStart(toggleBtn, LR) {
+        // 0.01초 단위로 실행
+        let intervalID = setInterval(
+            function () {
+                // 버튼 이동
+                let left = parseInt(toggleBtn.css('left'));
+                left += (LR == 'TO_RIGHT') ? 5 : -5;
+                if (left >= 0 && left <= 40) {
+                    left += 'px';
+                    toggleBtn.css('left', left);
+                }
+            }, 10);
+        setTimeout(function () {
+            clearInterval(intervalID);
+        }, 200);
+    }
+
+    function save_comment() {
+        let name = $('#name').val()
+        let comment = $('#comment').val()
+
+        $.ajax({
+            type: "POST",
+            url: "/Duck",
+            data: {'name_give': name, 'comment_give': comment},
+            success: function (response) {
+                alert(response["msg"])
+                window.location.reload()
+            }
+        });
+    }
+
+    function show_comment() {
+        $('#comment-list').empty()
+        $.ajax({
+            type: "GET",
+            url: "/Duck",
+            data: {},
+            success: function (response) {
+                let rows = response.comments
+                for (let i = 0; i < rows.length; i++) {
+                    let name = rows[i].name
+                    let comment = rows[i].comment
+                    let num = rows[i].num
+                    let temp_html = `<div class="card">
+                                            <div class="card-body">
+                                                <blockquote class="blockquote mb-0">
+                                                <div class="rightBox">
+                                                <span>작성자 : ${name}</span>
+                                                    <p>${comment}</p>
+</div>
+                                                    <svg onclick="del_Duck(${num})" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
+</svg>
+                                                </blockquote>
+                                            </div>
+                                        </div>`
+                    $('#comment-list').append(temp_html)
+                }
+            }
+        });
+    }
+
+    function del_Duck(num) {
+        $.ajax({
+            type: "POST",
+            url: "/Duck/Delete",
+            data: {num_give: num},
+            success: function (response) {
+                alert(response["msg"])
+                window.location.reload()
+            }
+        });
+    }
+
+    $.ajax({
+        type: "GET",
+        url: "http://spartacodingclub.shop/sparta_api/weather/seoul",
+        success: function (response) {
+            $("#temp").text(response.temp);
+            $("#local").text(response.city);
+        },
+    });
+</script>
+<body>
+<div class="cover">
+    <h1>오리 사랑 모임</h1>
+    <h4>위치 : <span id="local"></span></h4>
+    <div class="weather">
+        <p>현재기온 : <span id="temp">00.00</span>도</p>
+        <img src="http://openweathermap.org/img/w/01d.png"/>
+    </div>
+    <h3>2022.0.0. 오전 0:00:00</h3>
+    <div class='toggleBG'>
+        <button class='toggleFG'></button>
+    </div>
+</div>
+<div id="commit">
+    <div class="form-floating mb-3">
+        <input
+                type="email"
+                class="form-control"
+                id="name"
+                placeholder="닉네임"
+        />
+        <label>닉네임</label>
+    </div>
+    <div class="form-floating">
+        <textarea
+                class="form-control"
+                placeholder="댓글입력"
+                id="comment"
+        ></textarea>
+        <label>댓글입력</label>
+    </div>
+    <button onclick="save_comment()" type="button" class="btn btn-warning">
+        응원 남기기
+    </button>
+</div>
+<div class="cards" id="comment-list">
+
+</div>
+</body>
+<script>
+    function submit() {
+        alert("응원 댓글 작성을 완료했습니다");
+    }
+
+    const clock = document.querySelector("h3");
+
+    const getTime = () => {
+        setInterval(() => {
+            const date = new Date();
+            const day = date.toLocaleString();
+            clock.innerHTML = `${day}`;
+        }, 1000);
+    }
+    getTime();
+</script>
+</html>
